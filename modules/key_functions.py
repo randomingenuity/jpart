@@ -1,0 +1,2 @@
+class RequirementsIncompatibleKeyFunction(object):
+    pass

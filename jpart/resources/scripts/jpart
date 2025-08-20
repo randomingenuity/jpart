@@ -1,0 +1,77 @@
+#!/usr/bin/env python3
+
+import os
+import argparse
+import logging
+
+import yaml
+
+import jpart.rule
+
+_DESCRIPTION = \
+    "Given sequential JSON data, use a system of rules to partition and " \
+    "direct data to a constellation of files."
+
+_DEFAULT_MODULE_PATH = './modules'
+
+_LOGGER = logging.getLogger(__name__)
+
+
+# TODO(dustin): It'd be useful to printout counts and time ranges of each written file
+# TODO(dustin): Add a flag that will dump all negative occurrences to a second file
+# TODO(dustin): Support list values, where we will uniquify the list, and process each
+# TODO(dustin): If a predicate is given and returns None, ignore record
+# TODO(dustin): Allow the filterer to be an object that can implement a filter function and/or a label function. The label function will prevent complex data from being necessary used for the filename
+
+
+def _get_args():
+    parser = \
+        argparse.ArgumentParser(
+            description=_DESCRIPTION)
+
+    parser.add_argument(
+        'config_filepath',
+        help="File-path of the rules file-path")
+
+    parser.add_argument(
+        'input_filepath',
+        help="File-path of the input data")
+
+    parser.add_argument(
+        'output_path',
+        help="Path to deposit isolated/grouped data to")
+
+    parser.add_argument(
+        '--module-path',
+        default=_DEFAULT_MODULE_PATH,
+        help="Path where any referenced modules live. Defaults to [{}].".format(_DEFAULT_MODULE_PATH))
+
+    args = parser.parse_args()
+    return args
+
+
+def _main():
+
+    args = _get_args()
+
+    if os.path.exists(args.output_path) is False:
+        os.makedirs(args.output_path)
+
+
+    # Read config
+
+    with open(args.config_filepath) as f:
+        config = yaml.safe_load(f)
+
+
+    # Process
+
+    with open(args.input_filepath) as f:
+        jpart.rule.load_rules_and_apply_to_input_data_with_config(
+            args.module_path,
+            args.output_path,
+            config,
+            f)
+
+
+_main()

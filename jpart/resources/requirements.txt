@@ -1,0 +1,2 @@
+PyYAML==6.0.2
+ri-common==0.0.3
